@@ -3,7 +3,7 @@ export function convertSvgShapesToPaths(button: HTMLButtonElement) {
     // svg: SVGSVGElement
 
     const textArea = document.querySelector<HTMLTextAreaElement>("#svg-paste")!;
-    const pathArea = document.querySelector<HTMLTextAreaElement>("#path")!;
+    const pathArea = document.querySelector<HTMLTextAreaElement>("#svg-copy")!;
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(textArea.value, "image/svg+xml");
     const svgPaste = svgDoc.documentElement;
@@ -25,6 +25,25 @@ export function convertSvgShapesToPaths(button: HTMLButtonElement) {
     }
 
     pathArea.value = svgPaste.outerHTML;
+
+    // select preview wrapper element
+    const previewWrapper = document.querySelector<HTMLDivElement>('.svg-preview-wrapper')!
+    
+    // create svg preview element
+    const svgPreview = document.createElement("div")
+    svgPreview.classList.add("svg-preview")
+    previewWrapper.appendChild(svgPreview)
+
+    // update data preview attribute
+    previewWrapper.setAttribute("data-preview", "true")
+
+    // remove previous svg preview if exists
+    // const previousSvgPreview = document.querySelector<HTMLDivElement>('.svg-preview')
+    // if (previousSvgPreview) {
+    //   previousSvgPreview.remove()
+    // }
+   // Directly append the SVG to the preview container
+   svgPreview.appendChild(svgPaste);
   });
 }
 
