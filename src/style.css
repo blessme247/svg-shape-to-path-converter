@@ -47,6 +47,7 @@ h1 {
   width: 90%;
   margin: 0 auto;
   text-align: center;
+  height: 100%;
   .container {
     width: 100%;
   }
@@ -54,6 +55,7 @@ h1 {
 }
 
 .convert-wrapper {
+  height: 100%;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -83,12 +85,17 @@ textarea {
 .svg-preview-wrapper {
   width: 90%;
   display: grid;
-  height: 12rem;
+  height: 14rem;
+  /* border: 1px solid red; */
   grid-template-columns: 5fr 0fr;
   /* gap: 1.2rem; */
   transition: grid-template-columns 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
   margin: 0 auto;
 }
+
+/* .svg-preview{
+  border: 1px solid red;
+} */
 
 .svg-preview-wrapper[data-preview="true"] {
   grid-template-columns: 3fr 2fr;
@@ -139,6 +146,7 @@ textarea {
   border: 1px solid #646cff;
   margin-left: 1.2rem;
   background-color: transparent;
+  height: 15rem;
 }
 
 .logo {
@@ -225,6 +233,3 @@ button:focus-visible {
     stroke-dashoffset: 0;
   }
 }
-
-/* <div class="svg-preview">
-</div> */

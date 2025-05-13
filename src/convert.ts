@@ -28,22 +28,25 @@ export function convertSvgShapesToPaths(button: HTMLButtonElement) {
 
     // select preview wrapper element
     const previewWrapper = document.querySelector<HTMLDivElement>('.svg-preview-wrapper')!
+
+     // remove previous svg preview if exists
+    const previousSvgPreview = document.querySelector<HTMLDivElement>('.svg-preview')
+    if (previousSvgPreview) {
+         previewWrapper.setAttribute("data-preview", "false")
+         previousSvgPreview.remove()
+       }
     
     // create svg preview element
     const svgPreview = document.createElement("div")
     svgPreview.classList.add("svg-preview")
     previewWrapper.appendChild(svgPreview)
 
+    // Set the innerHTML to the SVG string
+    svgPreview.innerHTML = svgPaste.outerHTML
+
     // update data preview attribute
     previewWrapper.setAttribute("data-preview", "true")
-
-    // remove previous svg preview if exists
-    // const previousSvgPreview = document.querySelector<HTMLDivElement>('.svg-preview')
-    // if (previousSvgPreview) {
-    //   previousSvgPreview.remove()
-    // }
-   // Directly append the SVG to the preview container
-   svgPreview.appendChild(svgPaste);
+ 
   });
 }
 
@@ -172,8 +175,8 @@ const ellipseToPath = (ellipse: SVGEllipseElement) => {
 const polygonToPath = (polygon: SVGPolygonElement) => {
     const attributes = polygon.attributes;
     const points = attributes.getNamedItem("points")?.value ?? "";
-    console.log(points, 'polygon points')
-    console.log(typeof points, 'polygon points type')
+    // console.log(points, 'polygon points')
+    // console.log(typeof points, 'polygon points type')
     
     return {
         pathAttributes: `M ${points} Z`,
