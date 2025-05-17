@@ -1,53 +1,119 @@
+import { toast } from "./toast";
+
 export function convertSvgShapesToPaths(button: HTMLButtonElement) {
   button.addEventListener("click", () => {
     // svg: SVGSVGElement
 
     const textArea = document.querySelector<HTMLTextAreaElement>("#svg-paste")!;
+
+    if (!textArea.value.trim()) {
+      toast("Please paste SVG code first");
+      return;
+    }
+
     const pathArea = document.querySelector<HTMLTextAreaElement>("#svg-copy")!;
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(textArea.value, "image/svg+xml");
+
+    // Check for parsing errors
+    const parserError = svgDoc.querySelector("parsererror");
+    if (parserError) {
+      toast("Invalid SVG format");
+      return;
+    }
+
     const svgPaste = svgDoc.documentElement;
     const shapes = svgPaste.querySelectorAll(
       "circle, ellipse, line, polygon, polyline, rect"
     );
 
+    // convert each shape
+    let shapesConverted = 0;
     for (const shape of shapes) {
-      const shapeAttributes = shape.attributes;
-      const path = document.createElementNS("", "path");
-      const { pathAttributes, attributesToExclude } = shapeToPath(shape);
-      path.setAttribute("d", pathAttributes);
-      for (const attribute of shapeAttributes) {
-        if (!attributesToExclude.includes(attribute.name)) {
-          path.setAttribute(attribute.name, attribute.value);
+
+      try {
+        const shapeAttributes = shape.attributes;
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const { pathAttributes, attributesToExclude } = shapeToPath(shape);
+
+        if (!pathAttributes) {
+          toast(`Failed to convert ${shape.tagName} to path`, "warning");
+          continue;
         }
+
+        // Copy attributes that shouldn't be excluded
+        path.setAttribute("d", pathAttributes);
+        for (const attribute of shapeAttributes) {
+          if (!attributesToExclude.includes(attribute.name)) {
+            path.setAttribute(attribute.name, attribute.value);
+          }
+        }
+        shape.replaceWith(path);
+        shapesConverted++
+      } catch (shapeError) {
+        console.error(`Error converting shape: ${shape.tagName}`, shapeError);
       }
-      shape.replaceWith(path);
     }
 
+    // update output to render
     pathArea.value = svgPaste.outerHTML;
 
-    // select preview wrapper element
-    const previewWrapper = document.querySelector<HTMLDivElement>('.svg-preview-wrapper')!
+    // // select preview wrapper element
+    // const previewWrapper = document.querySelector<HTMLDivElement>('.svg-preview-wrapper')!
 
-     // remove previous svg preview if exists
-    const previousSvgPreview = document.querySelector<HTMLDivElement>('.svg-preview')
-    if (previousSvgPreview) {
-         previewWrapper.setAttribute("data-preview", "false")
-         previousSvgPreview.remove()
-       }
+    //  // remove previous svg preview if exists
+    // const previousSvgPreview = document.querySelector<HTMLDivElement>('.svg-preview')
+    // if (previousSvgPreview) {
+    //      previewWrapper.setAttribute("data-preview", "false")
+    //      previousSvgPreview.remove()
+    //    }
     
-    // create svg preview element
-    const svgPreview = document.createElement("div")
-    svgPreview.classList.add("svg-preview")
-    previewWrapper.appendChild(svgPreview)
+    // // create svg preview element
+    // const svgPreview = document.createElement("div")
+    // svgPreview.classList.add("svg-preview")
+    // previewWrapper.appendChild(svgPreview)
 
-    // Set the innerHTML to the SVG string
-    svgPreview.innerHTML = svgPaste.outerHTML
+    // // Set the innerHTML to the SVG string
+    // svgPreview.innerHTML = svgPaste.outerHTML
 
-    // update data preview attribute
-    previewWrapper.setAttribute("data-preview", "true")
+    // // update data preview attribute
+    // previewWrapper.setAttribute("data-preview", "true")
+
+    updatePreview(svgPaste)
  
   });
+}
+
+// Update the preview area with the converted SVG
+function updatePreview(svgElement: HTMLElement) {
+  const previewWrapper = document.querySelector<HTMLDivElement>('.svg-preview-wrapper');
+  
+  if (!previewWrapper) {
+    console.warn("Preview wrapper not found")
+    toast("Preview wrapper not found", "warning");
+    return;
+  }
+  
+  // Remove previous preview
+  const previousSvgPreview = document.querySelector<HTMLDivElement>('.svg-preview');
+  if (previousSvgPreview) {
+    previewWrapper.setAttribute("data-preview", "false");
+    previousSvgPreview.remove();
+  }
+  
+  // Create new preview
+  const svgPreview = document.createElement("div");
+  svgPreview.classList.add("svg-preview");
+  previewWrapper.appendChild(svgPreview);
+  
+  // Set the innerHTML safely
+  try {
+    svgPreview.innerHTML = svgElement.outerHTML;
+    previewWrapper.setAttribute("data-preview", "true");
+  } catch (error) {
+    toast("Error setting preview HTML")
+    console.error("Error setting preview HTML:", error);
+  }
 }
 
 // Type guard for narrowing down the type
@@ -132,16 +198,29 @@ const rectToPath = (rect: SVGRectElement) => {
 
 // function to convert circle to path
 const circleToPath = (circle: SVGCircleElement) => {
+
+  try {
+    
     const attributes = circle.attributes;
     const cx = Number(attributes.getNamedItem("cx")?.value ?? 0);
     const cy = Number(attributes.getNamedItem("cy")?.value ?? 0);
     const r = Number(attributes.getNamedItem("r")?.value ?? 0);
+
+    if(isNaN(r) || r <= 0){
+      throw new Error(`Invalid circle radius: ${r}`)
+    }
     
     return {
         pathAttributes: `M ${cx + r},${cy} A ${r},${r} 0 1 0 ${cx - r},${cy} A ${r},${r} 0 1 0 ${cx + r},${cy}`,
         attributesToExclude: ["cx", "cy", "r"],
     };
+  } catch (error:any) {
+    toast(error, 'failure')
+    return { pathAttributes: "", attributesToExclude: [] }
+  }
     }
+    
+
 
 // function to convert line to path
 const lineToPath = (line: SVGLineElement) => {

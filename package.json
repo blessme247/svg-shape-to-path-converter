@@ -8,6 +8,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "zinid-js": "/Users/macbookpro/Desktop/work-local/Zinary/zinid-js"
+  },
   "devDependencies": {
     "typescript": "~5.7.2",
     "vite": "^6.2.0"

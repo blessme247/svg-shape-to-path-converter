@@ -1,0 +1,55 @@
+/* TOAST.CSS */
+
+
+.toastContain {
+    z-index: 50;
+    position: fixed;
+    left: 50%;
+    bottom: 4rem; 
+    width: fit-content;
+    min-width: 10rem;
+    transform: translateX(-50%);
+  }
+  
+  /* toast message, style as you need */
+  .toast {
+    opacity: 0;
+    min-height: 2rem; 
+    margin-top: -2.5rem;
+    border-radius: 0.375rem; 
+    padding: 0.45rem 1rem; 
+    background-color: white;
+    border: 1px solid rgb(231, 229, 228); 
+    text-align: center;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); 
+    color: #242424;
+  }
+  
+  /* toast message transitions */
+  .toast {
+    transform: scale(0.9) translateY(50px);
+    transition: margin-top 0.5s, transform 0.5s, opacity 0.5s;
+  }
+  
+  /* how the toast transitions when it's transitioned in */
+  .toast.open {
+    margin-top: 0.5rem; 
+    transform: scale(1) translateY(0); 
+    opacity: 1;
+  }
+  
+  /* Create different toasts by providing extraClasses and styling them here. */
+  .toast.success {
+    /* Add your success toast styles here */
+    border: 1px solid #1DB954;
+  }
+  
+  .toast.failure {
+    border: 1px solid red;
+  }
+  
+  .toast.warning {
+    /* Add your warning toast styles here */
+    border: 1px solid yellow;
+  }
+  
